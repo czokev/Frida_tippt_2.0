@@ -27,9 +27,13 @@
     <!-- Startseite / Anmeldung -->
     <section id="login-section">
         <h2>Anmeldung</h2>
-        <p>Wähle einen Namen, um mitzutippen:</p>
+        <p>Gib deinen Namen ein, um zu tippen oder deine Ergebnisse zu sehen:</p>
         <input type="text" id="username" placeholder="Dein Name (z.B. MaxM)">
-        <button onclick="register()">Teilnehmen</button>
+        <button onclick="register()">Teilnehmen / Login</button>
+        
+        <!-- NEU: Direkter Zugang zum Dashboard -->
+        <button style="background-color: #6c757d;" onclick="showDashboard()">Nur Dashboard ansehen</button>
+        
         <p id="login-msg"></p>
     </section>
 
