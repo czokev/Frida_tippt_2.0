@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Schul-Tippspiel</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+        .hidden { display: none; }
+        section { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <h1 id="main-title">Schul-Tippspiel</h1>
+
+    <!-- Login Seite -->
+    <section id="login-section">
+        <h2>Anmeldung</h2>
+        <input type="text" id="username" placeholder="Dein Name">
+        <button onclick="register()">Teilnehmen</button>
+        <p id="login-msg" style="color: red;"></p>
+    </section>
+
+    <!-- Tipp Seite -->
+    <section id="bet-section" class="hidden">
+        <h2>Tipp abgeben</h2>
+        <p>Eingeloggt als: <strong id="display-user"></strong></p>
+        <select id="game-select">
+            <option value="Spiel 1: Team A vs Team B">Spiel 1: Team A vs Team B</option>
+        </select>
+        <input type="text" id="bet-input" placeholder="Ergebnis (z.B. 2:1)">
+        <button onclick="submitBet()">Tipp speichern</button>
+        <p id="bet-msg"></p>
+        <button onclick="showDashboard()">Zum Dashboard</button>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="dashboard-section" class="hidden">
+        <h2>Dashboard</h2>
+        <table id="results-table">
+            <thead>
+                <tr><th>Name</th><th>Spiel</th><th>Tipp</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button onclick="location.reload()">Zurück</button>
+    </section>
+
+    <script>
+        const API_URL = "DEINE_APPS_SCRIPT_URL"; // Hier URL einfügen
+        let currentUser = "";
+
+        async function register() {
+            const name = document.getElementById('username').value;
+            if (!name) return;
+
+            const resp = await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "register", username: name })
+            });
+            const result = await resp.json();
+
+            if (result.status === "success") {
+                currentUser = name;
+                document.getElementById('display-user').innerText = name;
+                switchSection('bet-section');
+            } else {
+                document.getElementById('login-msg').innerText = result.message;
+            }
+        }
+
+        async function submitBet() {
+            const game = document.getElementById('game-select').value;
+            const bet = document.getElementById('bet-input').value;
+
+            await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "submitBet", username: currentUser, game: game, bet: bet })
+            });
+
+            document.getElementById('bet-msg').innerText = "Tipp erfolgreich abgegeben!";
+            document.getElementById('bet-input').disabled = true;
+        }
+
+        async function showDashboard() {
+            switchSection('dashboard-section');
+            const resp = await fetch(API_URL);
+            const data = await resp.json();
+            
+            const tbody = document.querySelector("#results-table tbody");
+            tbody.innerHTML = "";
+            data.slice(1).forEach(row => {
+                const tr = document.createElement("tr");
+                row.forEach(cell => {
+                    const td = document.createElement("td");
+                    td.innerText = cell;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        function switchSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
