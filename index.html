@@ -7,7 +7,7 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: auto; padding: 20px; line-height: 1.6; background-color: #f4f4f9; }
         section { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h1, h2 { color: #333; }
+        h1, h2 { color: #333; text-align: center; }
         input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
         button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.3s; }
         button:hover { background-color: #0056b3; }
@@ -15,7 +15,15 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background-color: #eee; }
-        #login-msg, #bet-msg { font-weight: bold; color: #d9534f; }
+        
+        /* Layout für die Tore-Eingabe */
+        .bet-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 25px 0; font-weight: bold; font-size: 1.2em; }
+        .score-input { width: 70px !important; text-align: center; margin: 0 !important; font-size: 1.5em; }
+        .team-label { flex: 1; }
+        .team-left { text-align: right; }
+        .team-right { text-align: left; }
+        
+        #login-msg, #bet-msg { font-weight: bold; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -27,13 +35,10 @@
     <!-- Startseite / Anmeldung -->
     <section id="login-section">
         <h2>Anmeldung</h2>
-        <p>Gib deinen Namen ein, um zu tippen oder deine Ergebnisse zu sehen:</p>
+        <p>Gib deinen Namen ein, um zu tippen oder das Dashboard zu sehen:</p>
         <input type="text" id="username" placeholder="Dein Name (z.B. MaxM)">
         <button onclick="register()">Teilnehmen / Login</button>
-        
-        <!-- NEU: Direkter Zugang zum Dashboard -->
         <button style="background-color: #6c757d;" onclick="showDashboard()">Nur Dashboard ansehen</button>
-        
         <p id="login-msg"></p>
     </section>
 
@@ -43,14 +48,23 @@
         <p>Eingeloggt als: <strong id="display-user"></strong></p>
         
         <label for="game-select">Spiel auswählen:</label>
-        <select id="game-select">
-            <option value="Spiel 1: Deutschland - Frankreich">Spiel 1: Deutschland - Frankreich</option>
-            <option value="Spiel 2: Spanien - Italien">Spiel 2: Spanien - Italien</option>
-            <option value="Spiel 3: England - Niederlande">Spiel 3: England - Niederlande</option>
+        <select id="game-select" onchange="updateTeams()">
+            <option value="Deutschland - Frankreich">Spiel 1: Deutschland - Frankreich</option>
+            <option value="Spanien - Italien">Spiel 2: Spanien - Italien</option>
+            <option value="England - Niederlande">Spiel 3: England - Niederlande</option>
         </select>
 
-        <label for="bet-input">Dein Tipp:</label>
-        <input type="text" id="bet-input" placeholder="Ergebnis (z.B. 2:1)">
+        <div class="bet-container">
+            <span id="home-team-name" class="team-label team-left">Deutschland</span>
+            
+            <input type="number" id="home-score" class="score-input" placeholder="0" min="0">
+            
+            <span>:</span>
+            
+            <input type="number" id="away-score" class="score-input" placeholder="0" min="0">
+            
+            <span id="away-team-name" class="team-label team-right">Frankreich</span>
+        </div>
         
         <button id="submit-btn" onclick="submitBet()">Tipp verbindlich speichern</button>
         <p id="bet-msg"></p>
@@ -61,7 +75,6 @@
     <!-- Dashboard -->
     <section id="dashboard-section" class="hidden">
         <h2>Dashboard & Tipps</h2>
-        <p>Hier siehst du alle abgegebenen Tipps:</p>
         <table id="results-table">
             <thead>
                 <tr>
@@ -70,32 +83,38 @@
                     <th>Tipp</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Daten werden hier eingefügt -->
-            </tbody>
+            <tbody></tbody>
         </table>
         <button onclick="location.reload()">Zurück zum Login</button>
     </section>
 
     <script>
-        // Deine Web-App URL
         const API_URL = "https://script.google.com/macros/s/AKfycbz6jprV7hfAgcNTFHRzWwiyYT3ie4nZGewoQEwP9OiluwqXOA17sDi_tUiNbe7YvW9UuA/exec";
         let currentUser = "";
 
-        // Sektionen umschalten
         function switchSection(id) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         }
 
-        // 1. Anmeldung / Registrierung
+        // Teamnamen im Interface aktualisieren
+        function updateTeams() {
+            const gameValue = document.getElementById('game-select').value;
+            const teams = gameValue.split(" - ");
+            if (teams.length === 2) {
+                document.getElementById('home-team-name').innerText = teams[0];
+                document.getElementById('away-team-name').innerText = teams[1];
+            }
+        }
+
+        // Anmeldung / Login
         async function register() {
             const name = document.getElementById('username').value.trim();
             const msg = document.getElementById('login-msg');
             if (!name) { msg.innerText = "Bitte Namen eingeben!"; return; }
 
             msg.style.color = "blue";
-            msg.innerText = "Prüfe Name...";
+            msg.innerText = "Verbindung wird hergestellt...";
 
             try {
                 const url = `${API_URL}?action=register&username=${encodeURIComponent(name)}`;
@@ -106,35 +125,38 @@
                     currentUser = name;
                     document.getElementById('display-user').innerText = name;
                     switchSection('bet-section');
-                } else if (result === "vergeben") {
-                    msg.style.color = "red";
-                    msg.innerText = "Dieser Name ist schon vergeben. Wähle einen anderen!";
                 }
             } catch (error) {
-                msg.innerText = "Fehler beim Verbinden mit der Datenbank.";
-                console.error(error);
+                msg.style.color = "red";
+                msg.innerText = "Fehler bei der Anmeldung.";
             }
         }
 
-        // 2. Tipp abgeben
+        // Tipp absenden
         async function submitBet() {
             const game = document.getElementById('game-select').value;
-            const bet = document.getElementById('bet-input').value.trim();
+            const hScore = document.getElementById('home-score').value;
+            const aScore = document.getElementById('away-score').value;
             const btn = document.getElementById('submit-btn');
             const msg = document.getElementById('bet-msg');
 
-            if (!bet) { alert("Bitte einen Tipp eingeben!"); return; }
+            if (hScore === "" || aScore === "") {
+                alert("Bitte in beide Felder Tore eingeben!");
+                return;
+            }
 
+            const fullBet = hScore + ":" + aScore;
             btn.disabled = true;
             btn.innerText = "Wird gespeichert...";
 
             try {
-                const url = `${API_URL}?action=submitBet&username=${encodeURIComponent(currentUser)}&game=${encodeURIComponent(game)}&bet=${encodeURIComponent(bet)}`;
+                const url = `${API_URL}?action=submitBet&username=${encodeURIComponent(currentUser)}&game=${encodeURIComponent(game)}&bet=${encodeURIComponent(fullBet)}`;
                 await fetch(url);
                 
                 msg.style.color = "green";
-                msg.innerText = "Tipp erfolgreich gespeichert! Du kannst für dieses Spiel keinen weiteren Tipp abgeben.";
-                document.getElementById('bet-input').disabled = true;
+                msg.innerText = "Tipp (" + fullBet + ") erfolgreich gespeichert!";
+                document.getElementById('home-score').disabled = true;
+                document.getElementById('away-score').disabled = true;
                 btn.innerText = "Gespeichert";
             } catch (error) {
                 alert("Fehler beim Speichern.");
@@ -143,7 +165,7 @@
             }
         }
 
-        // 3. Dashboard laden
+        // Dashboard anzeigen
         async function showDashboard() {
             switchSection('dashboard-section');
             const tbody = document.querySelector("#results-table tbody");
@@ -154,14 +176,13 @@
                 const data = await response.json();
                 
                 tbody.innerHTML = "";
-                // Wir überspringen die erste Zeile, falls sie Überschriften enthält
                 data.slice(1).forEach(row => {
                     const tr = document.createElement("tr");
                     tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>`;
                     tbody.appendChild(tr);
                 });
             } catch (error) {
-                tbody.innerHTML = "<tr><td colspan='3'>Fehler beim Laden der Tabelle.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='3'>Fehler beim Laden.</td></tr>";
             }
         }
     </script>
