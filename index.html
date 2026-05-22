@@ -617,10 +617,10 @@
                     label: 'Punkte',
                     data: pointHistoryData.length > 0 ? pointHistoryData : [0],
                     showLine: false, // WICHTIG: Blendet die Verbindungslinie aus
-                    pointRadius: 5,  // Punkte etwas vergrößert für bessere Sichtbarkeit
+                    pointRadius: 7,  // Punkte etwas vergrößert für bessere Sichtbarkeit
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointHoverRadius: 7,
+                    pointHoverRadius: 9,
                     pointHoverBorderColor: '#ffffff',
                     // Dynamische Farbzuweisung für die Punkte
                     pointBackgroundColor: function(context) {
@@ -651,7 +651,7 @@
                         ticks: { 
                             autoSkip: false, 
                             stepSize: 1, 
-                            padding: 5,
+                            padding: 10,
                             font: { weight: 'bold', size: 10 },
                             color: function(context) {
                                 if (context.tick && context.tick.value === 2) return '#0468BF'; 
