@@ -118,6 +118,16 @@
             height: 110px;
         }
 
+        /* GRID FÜR KENNZAHLEN */
+        .kennzahlen-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .kennzahlen-container > div {
+            flex: 1 1 20%;
+        }
+
         /* ANPASSUNG FÜR HANDYS */
         @media (max-width: 500px) {
             .matchup-row { gap: 5px; }
@@ -136,6 +146,13 @@
             /* Diagrammen auf dem Handy mehr Höhe geben, gegen die Quetschung */
             .chart-container-top {
                 height: 180px; 
+            }
+            
+            /* Kennzahlen im 2x2 Raster auf dem Handy */
+            .kennzahlen-container {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
             }
             
             /* Schriftgrößen der Kennzahlen in der Summary-Box dynamisch verkleinern */
@@ -263,14 +280,13 @@
             <div id="loader-profil" class="loader hidden"></div>
             
             <div class="summary-box" style="background: #fff; padding: 25px 15px; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-    
-    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-        <div style="flex: 1 1 20%;"><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">Platz</div><strong id="profil-platz-display" style="font-size: 2.5em; color: #becf05;">-</strong></div>
-        <div style="flex: 1 1 20%;"><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">Punkte</div><strong id="profil-punkte-display" style="font-size: 2.5em; color: #0468BF;">-</strong></div>
-        <div style="flex: 1 1 20%;"><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">Ø Pkt / Spiel</div><strong id="profil-schnitt-display" style="font-size: 2.5em; color: #F20F79;">-</strong></div>
-        <div style="flex: 1 1 20%;"><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">getippte Spiele</div><strong id="profil-spiele-display" style="font-size: 2.5em; color: #f7b03d;">-</strong></div>
-    </div>
-</div>
+                <div class="kennzahlen-container">
+                    <div><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">Platz</div><strong id="profil-platz-display" style="font-size: 2.5em; color: #becf05;">-</strong></div>
+                    <div><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">Punkte</div><strong id="profil-punkte-display" style="font-size: 2.5em; color: #0468BF;">-</strong></div>
+                    <div><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">Ø Pkt / Spiel</div><strong id="profil-schnitt-display" style="font-size: 2.5em; color: #F20F79;">-</strong></div>
+                    <div><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">getippte Spiele</div><strong id="profil-spiele-display" style="font-size: 2.5em; color: #f7b03d;">-</strong></div>
+                </div>
+            </div>
             
             <div class="profil-grid">
                 
