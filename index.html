@@ -605,13 +605,9 @@
             pointHistoryLabels.push('Spiel ' + (index + 1));
         });
 
-        // --- GRAPH FÜR PUNKTEVERLAUF (ORANGE) ---
+        // --- GRAPH FÜR PUNKTEVERLAUF (NUR PUNKTE, FARBLICH MARKIERT) ---
         const ctxPointsHistory = document.getElementById('pointsHistoryChart').getContext('2d');
         if (pointsHistoryChartInstance) pointsHistoryChartInstance.destroy();
-
-        let gradientPointsHistory = ctxPointsHistory.createLinearGradient(0, 0, 0, 180); 
-        gradientPointsHistory.addColorStop(0, 'rgba(242, 137, 7, 0.4)'); 
-        gradientPointsHistory.addColorStop(1, 'rgba(242, 137, 7, 0.0)');
 
         pointsHistoryChartInstance = new Chart(ctxPointsHistory, {
             type: 'line',
@@ -620,18 +616,26 @@
                 datasets: [{
                     label: 'Punkte',
                     data: pointHistoryData.length > 0 ? pointHistoryData : [0],
-                    borderColor: '#F28907', 
-                    backgroundColor: gradientPointsHistory,
-                    borderWidth: 3, 
-                    tension: 0.4, 
-                    fill: 'start', 
-                    pointRadius: 4,
-                    pointBackgroundColor: '#ffffff',
-                    pointBorderColor: '#F28907',
+                    showLine: false, // WICHTIG: Blendet die Verbindungslinie aus
+                    pointRadius: 5,  // Punkte etwas vergrößert für bessere Sichtbarkeit
+                    pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointHoverRadius: 6,
-                    pointHoverBackgroundColor: '#F28907',
+                    pointHoverRadius: 7,
                     pointHoverBorderColor: '#ffffff',
+                    // Dynamische Farbzuweisung für die Punkte
+                    pointBackgroundColor: function(context) {
+                        let val = context.raw;
+                        if (val === 2) return '#0468BF'; // 3 Punkte (Exakt) -> Blau
+                        if (val === 1) return '#F28907'; // 1 Punkt (Tendenz) -> Orange
+                        return '#F20F79';                // 0 Punkte (Falsch) -> Magenta
+                    },
+                    // Dynamische Farbzuweisung beim Darüberfahren (Hover)
+                    pointHoverBackgroundColor: function(context) {
+                        let val = context.raw;
+                        if (val === 2) return '#0468BF';
+                        if (val === 1) return '#F28907';
+                        return '#F20F79';
+                    },
                     clip: false
                 }]
             },
@@ -684,7 +688,14 @@
                 plugins: { 
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: 'rgba(242, 137, 7, 0.9)',
+                        // Dynamische Tooltip-Hintergrundfarbe passend zum Punkt
+                        backgroundColor: function(context) {
+                            if (!context.tooltip.dataPoints) return 'rgba(0,0,0,0.8)';
+                            let val = context.tooltip.dataPoints[0].raw;
+                            if (val === 2) return 'rgba(4, 104, 191, 0.9)'; // Blau
+                            if (val === 1) return 'rgba(242, 137, 7, 0.9)'; // Orange
+                            return 'rgba(242, 15, 121, 0.9)';               // Magenta
+                        },
                         titleColor: '#fff', bodyColor: '#fff', padding: 10, displayColors: false,
                         callbacks: { 
                             label: function(context) { 
