@@ -3,188 +3,895 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schul-Tippspiel</title>
+    <title>Frida_tippt_WM26</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽️</text></svg>">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: auto; padding: 20px; line-height: 1.6; background-color: #f4f4f9; }
-        section { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h1, h2 { color: #333; text-align: center; }
-        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
-        button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.3s; }
-        button:hover { background-color: #0056b3; }
-        .hidden { display: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #eee; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 15px; padding-bottom: 80px; hyphens: auto;}
         
-        /* Layout für die Tore-Eingabe */
-        .bet-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 25px 0; font-weight: bold; font-size: 1.2em; }
-        .score-input { width: 70px !important; text-align: center; margin: 0 !important; font-size: 1.5em; }
-        .team-label { flex: 1; }
-        .team-left { text-align: right; }
-        .team-right { text-align: left; }
+        .container { max-width: 700px; margin: 0 auto; background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative; }
         
-        #login-msg, #bet-msg { font-weight: bold; text-align: center; margin-top: 10px; }
+        .header-image { max-height: 280px; width: auto; max-width: 100%; margin: 0 auto 0px auto; display: block; border-radius: 8px; }
+        
+        h1, h2 { color: #0468BF; text-align: center; }
+        
+        .news-box { background-color: rgba(242, 137, 7, 0.1); color: #F28907; padding: 15px; border-left: 5px solid #F28907; border-radius: 4px; margin-bottom: 30px; font-weight: bold; text-align: center; }
+        
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+        .auth-wrapper { width: 240px; margin: 0 auto; text-align: left; }
+        .auth-wrapper label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: 600; color: #444; font-size: 0.95em; }
+        .auth-wrapper input[type="text"], .auth-wrapper select { width: 100%; padding: 12px; margin: 0; border: 2px solid #999; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+
+        .pin-container { display: flex; justify-content: space-between; margin-top: 5px; margin-bottom: 15px; gap: 13px; }
+        .pin-box { width: 50px; height: 50px; font-size: 24px; text-align: center; border: 2px solid #ccc; border-radius: 8px; background-color: #f9f9f9; box-sizing: border-box; -webkit-text-security: disc; text-security: disc;}
+        .pin-box:focus { border-color: #0468BF; outline: none; }
+
+        button { width: 100%; background-color: #0468BF; color: white; padding: 14px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px; box-sizing: border-box; transition: opacity 0.2s; }
+        button:active { opacity: 0.8; }
+        
+        .nav-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; margin-top: 10px; }
+        .btn-half { flex: 1 1 calc(50% - 5px); margin: 0; }
+        .btn-full { flex: 1 1 100%; margin: 0; }
+        
+        .btn-spiele  { background-color: #0468BF; color: white; }
+        .btn-bonus   { background-color: #F28907; color: white; }
+        .btn-ranking { background-color: #cdde10; color: #333; }
+        .btn-profil  { background-color: #F20F79; color: white; }
+        .btn-rules   { background-color: #FB79C6; color: #333; }
+        
+        .active-btn { outline: 3px solid #333; outline-offset: 2px; }
+
+        .hidden { display: none !important; }
+        .toggle-link { text-align: center; color: #0468BF; text-decoration: underline; cursor: pointer; margin-top: 10px; display: block; }
+
+        .game-card { border: 1px solid #e1e4e8; padding: 12px; margin-bottom: 12px; border-radius: 8px; background: #fafbfc; position: relative; }
+        .game-card.tipped-game { background-color: rgba(4, 104, 191, 0.05); border-color: rgba(4, 104, 191, 0.2); }
+        .game-card.locked-game { background-color: #e9ecef; opacity: 0.8; border: 1px dashed #ccc; }
+        
+        .matchup-row { display: flex; align-items: center; justify-content: center; width: 100%; gap: 10px; }
+        .team-name { flex: 1; font-weight: normal; font-size: 0.9em; line-height: 1.2; word-break: break-word; hyphens: auto; }
+        .team-name.home { text-align: right; }
+        .team-name.away { text-align: left; }
+        
+        .score-inputs { display: flex; align-items: center; gap: 4px; justify-content: center; min-width: 90px; }
+        .score-inputs input { width: 38px; height: 38px; text-align: center; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; font-weight: bold; }
+        .score-inputs input:focus { border-color: #0468BF; outline: none; }
+
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 14px; }
+        th, td { padding: 8px 4px; text-align: left; border-bottom: 1px solid #ddd; white-space: nowrap; }
+        
+        .form-container { display: flex; gap: 2px; }
+        .form-circle { width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: bold; color: white; background-color: #ccc; flex-shrink: 0; }
+        .form-circle.points-3 { background-color: #0468BF; } 
+        .form-circle.points-1 { background-color: #F28907; color: #fff; } 
+        .form-circle.points-0 { background-color: #F20F79; } 
+
+        .ranking-filter { display: flex; gap: 5px; margin-bottom: 15px; }
+        .ranking-filter button { margin: 0; background-color: rgba(4, 104, 191, 0.1); font-size: 14px; padding: 10px; flex: 1; border-radius: 6px; color: #0468BF; }
+        .ranking-filter button.active-filter { background-color: #0468BF; color: white; outline: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        .rules-box { text-align: justify; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6; font-size: 0.95em; line-height: 1.5; hyphens: auto; }
+        
+        #message-box { text-align: center; margin-bottom: 15px; font-weight: bold; min-height: 1.2em; }
+        
+        .loader { width: 100%; height: 8px; background-color: rgba(4, 104, 191, 0.15); border-radius: 4px; margin: 20px 0; overflow: hidden; position: relative; }
+        .loader::after { content: ''; position: absolute; top: 0; left: -50%; width: 50%; height: 100%; background-color: #0468BF; border-radius: 4px; animation: loadingBar 1.5s infinite ease-in-out; }
+        @keyframes loadingBar { 0% { left: -50%; } 100% { left: 100%; } }
+        
+        #floating-save-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); padding: 10px 15px 15px 15px; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; box-sizing: border-box; z-index: 1000; }
+        #floating-save-bar button { max-width: 600px; margin: 0; background-color: #0468BF; }
+
+        .bonus-input { width: 95%; padding: 12px; font-size: 16px; margin: 10px auto; display: block; text-align: center; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; background-color: #fff; }
+        .bonus-input:focus { border-color: #0468BF; outline: none; }
+
+        .version-number { position: fixed; bottom: 5px; right: 5px; font-size: 10px; color: #999; }
+
+        /* GRID FÜR PROFIL (3/4 zu 1/4) */
+        .profil-grid {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .chart-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            min-width: 0; /* Verhindert Overflow im Grid */
+        }
+
+        @media (max-width: 500px) {
+            .matchup-row { gap: 5px; }
+            .team-name { font-size: 0.85em; }
+            th, td { font-size: 12px; padding: 6px 2px; }
+            .form-circle { width: 16px; height: 16px; font-size: 9px; }
+            .score-inputs input { width: 34px; height: 34px; font-size: 14px; }
+            .score-inputs { min-width: 80px; }
+            .ranking-filter { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>🏆 Schul-Tippspiel</h1>
-    </header>
+<div class="container">
+    <img src="header.jpg" alt="WM-Tippspiel Header" class="header-image" onerror="this.style.display='none'; document.getElementById('fallback-title').style.display='block';">
+    <h1 id="fallback-title" style="display:none; margin-top: 0;">WM-Tippspiel</h1>
 
-    <!-- Startseite / Anmeldung -->
-    <section id="login-section">
+    <div id="message-box"></div>
+
+    <div id="login-view">
         <h2>Anmeldung</h2>
-        <p>Gib deinen Namen ein, um zu tippen oder das Dashboard zu sehen:</p>
-        <input type="text" id="username" placeholder="Dein Name (z.B. MaxM)">
-        <button onclick="register()">Teilnehmen / Login</button>
-        <button style="background-color: #6c757d;" onclick="showDashboard()">Nur Dashboard ansehen</button>
-        <p id="login-msg"></p>
-    </section>
+        <div class="auth-wrapper">
+            <label>Name:</label>
+            <input type="text" id="login-name" placeholder="Dein Name" maxlength="10">
+            <label>PIN eingeben:</label>
+            <div class="pin-container" id="login-pin-container">
+                <input type="text" inputmode="numeric" class="pin-box" maxlength="1" oninput="handlePinInput(this)" onkeydown="handlePinBackspace(this, event)">
+                <input type="text" inputmode="numeric" class="pin-box" maxlength="1" oninput="handlePinInput(this)" onkeydown="handlePinBackspace(this, event)">
+                <input type="text" inputmode="numeric" class="pin-box" maxlength="1" oninput="handlePinInput(this)" onkeydown="handlePinBackspace(this, event)">
+                <input type="text" inputmode="numeric" class="pin-box" maxlength="1" oninput="handlePinInput(this)" onkeydown="handlePinBackspace(this, event)">
+            </div>
+            <button onclick="login()">Einloggen</button>
+            <span class="toggle-link" onclick="alert('Frage nach deinem Passwort!')">Passwort vergessen?</span>
+            <span class="toggle-link" onclick="toggleAuthView()" style="margin-top: 20px;">Noch kein Konto? <br>HIER REGISTRIEREN!</span>
+        </div>
+    </div>
 
-    <!-- Tipp-Abgabe -->
-    <section id="bet-section" class="hidden">
-        <h2>Tipp abgeben</h2>
-        <p>Eingeloggt als: <strong id="display-user"></strong></p>
-        
-        <label for="game-select">Spiel auswählen:</label>
-        <select id="game-select" onchange="updateTeams()">
-            <option value="Deutschland - Frankreich">Spiel 1: Deutschland - Frankreich</option>
-            <option value="Spanien - Italien">Spiel 2: Spanien - Italien</option>
-            <option value="England - Niederlande">Spiel 3: England - Niederlande</option>
-        </select>
+    <div id="register-view" class="hidden">
+        <h2>Neu registrieren</h2>
+        <div class="auth-wrapper">
+            <label>Name (max. 10 Zeichen):</label>
+            <input type="text" id="reg-name" placeholder="Dein Name" maxlength="10">
+            <label>Klasse:</label>
+            <select id="reg-klasse">
+                <option value="">Lade Klassen aus Tabelle...</option>
+            </select>
+            
+            <label>PIN (4 Zahlen):</label>
+            <div class="pin-container" id="reg-pin-container">
+                <input type="text" inputmode="numeric" class="pin-box" maxlength="1" oninput="handlePinInput(this)" onkeydown="handlePinBackspace(this, event)">
+                <input type="text" inputmode="numeric" class="pin-box" maxlength="1" oninput="handlePinInput(this)" onkeydown="handlePinBackspace(this, event)">
+                <input type="text" inputmode="numeric" class="pin-box" maxlength="1" oninput="handlePinInput(this)" onkeydown="handlePinBackspace(this, event)">
+                <input type="text" inputmode="numeric" class="pin-box" maxlength="1" oninput="handlePinInput(this)" onkeydown="handlePinBackspace(this, event)">
+            </div>
+            <button onclick="register()">Registrieren</button>
+            <span class="toggle-link" onclick="toggleAuthView()">Zurück zum Login.</span>
+        </div>
+    </div>
 
-        <div class="bet-container">
-            <span id="home-team-name" class="team-label team-left">Deutschland</span>
-            
-            <input type="number" id="home-score" class="score-input" placeholder="0" min="0">
-            
-            <span>:</span>
-            
-            <input type="number" id="away-score" class="score-input" placeholder="0" min="0">
-            
-            <span id="away-team-name" class="team-label team-right">Frankreich</span>
+    <div id="summary-view" class="hidden">
+        <div id="credentials-box" class="summary-box" style="background: rgba(4, 104, 191, 0.05); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 15px; border: 1px solid rgba(4, 104, 191, 0.2);">
+            <h3 style="margin-top: 0; color: #0468BF;">Erfolgreich!</h3>
+            <p style="color: #333;">Deine Zugangsdaten für das Tippspiel:</p>
+            <p style="color: #0468BF; font-size: 1.1em;"><strong>Name:</strong> <span id="sum-name"></span><br>
+            <strong>PIN:</strong> <span id="sum-pin" style="letter-spacing: 2px;"></span></p>
+        </div>
+        <button onclick="downloadCredentials()" style="background-color: #F28907;">📸 Als Foto speichern</button>
+        <button onclick="proceedToMain()">Weiter zum Spiel</button>
+    </div>
+
+    <div id="auth-loader" class="loader hidden"></div>
+
+    <div id="main-view" class="hidden">
+        <div id="start-header-section" class="hidden">
+            <div id="news-container" class="news-box hidden"></div>
+        </div>
+
+        <div class="nav-buttons">
+            <button id="nav-tipps" class="btn-half btn-spiele" onclick="showSection('tipps')">⚽️ Spiele</button>
+            <button id="nav-bonus" class="btn-half btn-bonus" onclick="showSection('bonus')">⭐️ Bonus</button>
+            <button id="nav-dashboard" class="btn-half btn-ranking" onclick="showSection('dashboard')">🏆 Ranking</button>
+            <button id="nav-profil" class="btn-half btn-profil" onclick="showSection('profil')">🚀 Profil</button>
+            <button id="nav-regeln" class="btn-full btn-rules" onclick="showSection('regeln')">❗️ Infos</button>
         </div>
         
-        <button id="submit-btn" onclick="submitBet()">Tipp verbindlich speichern</button>
-        <p id="bet-msg"></p>
-        <hr>
-        <button style="background-color: #6c757d;" onclick="showDashboard()">Zum Dashboard / Rangliste</button>
-    </section>
+        <div id="start-section" class="hidden">
+            <p style="text-align: center;">Wähle oben einen Bereich aus, um loszulegen.</p>
+            <div id="loader-start" class="loader hidden"></div>
+        </div>
 
-    <!-- Dashboard -->
-    <section id="dashboard-section" class="hidden">
-        <h2>Dashboard & Tipps</h2>
-        <table id="results-table">
-            <thead>
-                <tr>
-                    <th>Tipper</th>
-                    <th>Spiel</th>
-                    <th>Tipp</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <button onclick="location.reload()">Zurück zum Login</button>
-    </section>
+        <div id="tipps-section" class="hidden">
+            <h2>⚽️ Spiele tippen</h2>
+            <div id="loader-tipps" class="loader hidden"></div>
+            <div id="games-container"></div>
+        </div>
 
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbz6jprV7hfAgcNTFHRzWwiyYT3ie4nZGewoQEwP9OiluwqXOA17sDi_tUiNbe7YvW9UuA/exec";
-        let currentUser = "";
+        <div id="bonus-section" class="hidden">
+            <h2>⭐️ Bonusfragen</h2>
+            <div id="loader-bonus" class="loader hidden"></div>
+            <div id="bonus-container"></div>
+        </div>
 
-        function switchSection(id) {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        }
+        <div id="dashboard-section" class="hidden">
+            <h2>🏆 Ranking</h2>
+            <div class="ranking-filter">
+                <button id="filter-einzel" class="active-filter" onclick="switchRanking('einzel')">Einzel</button>
+                <button id="filter-klasse" onclick="switchRanking('klasse')">Klassen</button>
+                <button id="filter-stufe" onclick="switchRanking('stufe')">Stufen</button>
+            </div>
+            
+            <div id="loader-dashboard" class="loader hidden"></div>
+            <div class="table-wrapper">
+                <table id="ranking-table">
+                    <thead id="ranking-head">
+                        <tr><th>Platz</th><th>Name</th><th>Klasse</th><th>Form</th><th style="text-align:right;">Punkte</th></tr>
+                    </thead>
+                    <tbody id="ranking-body"></tbody>
+                </table>
+            </div>
+        </div>
 
-        // Teamnamen im Interface aktualisieren
-        function updateTeams() {
-            const gameValue = document.getElementById('game-select').value;
-            const teams = gameValue.split(" - ");
-            if (teams.length === 2) {
-                document.getElementById('home-team-name').innerText = teams[0];
-                document.getElementById('away-team-name').innerText = teams[1];
-            }
-        }
-
-        // Anmeldung / Login
-        async function register() {
-            const name = document.getElementById('username').value.trim();
-            const msg = document.getElementById('login-msg');
-            if (!name) { msg.innerText = "Bitte Namen eingeben!"; return; }
-
-            msg.style.color = "blue";
-            msg.innerText = "Verbindung wird hergestellt...";
-
-            try {
-                const url = `${API_URL}?action=register&username=${encodeURIComponent(name)}`;
-                const response = await fetch(url);
-                const result = await response.text();
-
-                if (result === "erfolg") {
-                    currentUser = name;
-                    document.getElementById('display-user').innerText = name;
-                    switchSection('bet-section');
-                }
-            } catch (error) {
-                msg.style.color = "red";
-                msg.innerText = "Fehler bei der Anmeldung.";
-            }
-        }
-
-        // Tipp absenden
-        async function submitBet() {
-            const game = document.getElementById('game-select').value;
-            const hScore = document.getElementById('home-score').value;
-            const aScore = document.getElementById('away-score').value;
-            const btn = document.getElementById('submit-btn');
-            const msg = document.getElementById('bet-msg');
-
-            if (hScore === "" || aScore === "") {
-                alert("Bitte in beide Felder Tore eingeben!");
-                return;
-            }
-
-            const fullBet = hScore + ":" + aScore;
-            btn.disabled = true;
-            btn.innerText = "Wird gespeichert...";
-
-            try {
-                const url = `${API_URL}?action=submitBet&username=${encodeURIComponent(currentUser)}&game=${encodeURIComponent(game)}&bet=${encodeURIComponent(fullBet)}`;
-                await fetch(url);
+        <div id="profil-section" class="hidden">
+            <h2>🚀 Profil</h2>
+            <div id="loader-profil" class="loader hidden"></div>
+            
+            <div class="summary-box" style="background: #fff; padding: 25px 15px; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="flex: 1 1 20%;"><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">Platz</div><strong id="profil-platz-display" style="font-size: 2.5em; color: #becf05;">-</strong></div>
+        <div style="flex: 1 1 20%;"><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">Punkte</div><strong id="profil-punkte-display" style="font-size: 2.5em; color: #0468BF;">-</strong></div>
+        <div style="flex: 1 1 20%;"><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">Ø Punkte / Spiel</div><strong id="profil-schnitt-display" style="font-size: 2.5em; color: #F20F79;">-</strong></div>
+        <div style="flex: 1 1 20%;"><div style="font-size: 0.75em; color: #666; text-transform: uppercase;">getippte Spiele</div><strong id="profil-spiele-display" style="font-size: 2.5em; color: #f7b03d;">-</strong></div>
+    </div>
+</div>
+            
+            <div class="profil-grid">
                 
-                msg.style.color = "green";
-                msg.innerText = "Tipp (" + fullBet + ") erfolgreich gespeichert!";
-                document.getElementById('home-score').disabled = true;
-                document.getElementById('away-score').disabled = true;
-                btn.innerText = "Gespeichert";
-            } catch (error) {
-                alert("Fehler beim Speichern.");
-                btn.disabled = false;
-                btn.innerText = "Tipp speichern";
-            }
-        }
-
-        // Dashboard anzeigen
-        async function showDashboard() {
-            switchSection('dashboard-section');
-            const tbody = document.querySelector("#results-table tbody");
-            tbody.innerHTML = "<tr><td colspan='3'>Lade Daten...</td></tr>";
-
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
+                <div class="chart-box">
+                    <h4 style="margin-top: 0; margin-bottom: 10px; text-align: center; color: #333; font-size: 0.75em; text-transform: uppercase;">Punkte-Verlauf</h4>
+                    <div style="position: relative; width: 100%; height: 110px;">
+                        <canvas id="pointsHistoryChart"></canvas>
+                    </div>
+                </div>
                 
-                tbody.innerHTML = "";
-                data.slice(1).forEach(row => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>`;
-                    tbody.appendChild(tr);
+                <div class="chart-box">
+                    <h4 style="margin-top: 0; margin-bottom: 5px; text-align: center; color: #333; font-size: 0.75em; text-transform: uppercase;">Punkte-Verteilung</h4>
+                    <div style="position: relative; width: 100%; height: 110px;">
+                        <canvas id="pointsPieChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="chart-box" style="margin-bottom: 15px;">
+                <h4 style="margin-top: 0; text-align: center; color: #333; font-size: 0.8em; text-transform: uppercase;">Platzierungs-Trend</h4>
+                <div style="position: relative; height: 200px; width: 100%;">
+                    <canvas id="rankingChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="regeln-section" class="hidden">
+            <h2>❗️ Wichtige Infos</h2>
+            <div id="regeln-content" class="rules-box">Regeln werden geladen...</div>
+            
+            <div id="feedback-area" style="margin-top: 30px; border-top: 1px solid #dee2e6; padding-top: 20px;">
+                <h3 style="color: #0468BF; font-size: 1.1em; margin-bottom: 10px;">🗯️ Feedback</h3>
+                <textarea id="feedback-text" rows="4" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 15px; resize: vertical;" placeholder="Deine Nachricht..."></textarea>
+                <button id="btn-save-feedback" onclick="saveFeedback()" style="margin-top: 15px; background-color: #0468BF;">Feedback abschicken</button>
+                <div id="feedback-message-box" style="text-align: center; margin-top: 10px; font-weight: bold; min-height: 1.2em;"></div>
+            </div>
+        </div>
+        
+        <div id="floating-save-bar" class="hidden">
+            <div id="floating-message-box" style="text-align: center; font-weight: bold; min-height: 1.2em; margin-bottom: 8px; font-size: 14px;"></div>
+            <button id="btn-save-all" onclick="saveAllTipps()">Tipps speichern</button>
+            <button id="btn-save-bonus" class="hidden" onclick="saveBonusTipps()">Bonus speichern</button>
+        </div>
+    </div>
+</div>
+
+<div id="version-display" class="version-number">v2.9.6</div>
+
+<script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxsI39hgw9O0pvJNhZXQC-vc9PUIaENwqCtR0vafCyEE4s67TUjIZaCUqibZxrYT0w3dA/exec";
+    
+    let currentUser = "", currentPassword = "";
+    let globalRankingEinzel = [], globalRankingKlasse = [], globalRankingStufe = [];
+    let currentRankingType = 'einzel';
+    
+    let rankingChartInstance = null;
+    let pointsPieChartInstance = null; 
+    let pointsHistoryChartInstance = null; 
+
+    Chart.defaults.font.family = "'Segoe UI', sans-serif";
+
+    function handlePinInput(elem) {
+        elem.value = elem.value.replace(/[^0-9]/g, ''); 
+        if (elem.value.length >= 1) {
+            elem.value = elem.value.substring(0, 1);
+            let next = elem.nextElementSibling;
+            if (next && next.tagName === 'INPUT') next.focus();
+        }
+    }
+    function handlePinBackspace(elem, event) {
+        if (event.key === "Backspace" && elem.value === "") {
+            let prev = elem.previousElementSibling;
+            if (prev && prev.tagName === 'INPUT') prev.focus();
+        }
+    }
+    function getPinFromContainer(id) {
+        let pin = "";
+        document.getElementById(id).querySelectorAll('.pin-box').forEach(i => pin += i.value);
+        return pin;
+    }
+    
+    function showMessage(msg, isSuccess = false) {
+        const box = document.getElementById('message-box');
+        box.style.color = isSuccess ? '#0468BF' : '#F20F79';
+        box.innerText = msg;
+        setTimeout(() => box.innerText = '', 5000);
+    }
+    
+    function showFloatingMessage(msg, isSuccess = false) {
+        const box = document.getElementById('floating-message-box');
+        box.style.color = isSuccess ? '#0468BF' : '#F20F79';
+        box.innerText = msg;
+        setTimeout(() => box.innerText = '', 5000);
+    }
+
+    function toggleAuthView() {
+        document.getElementById('login-view').classList.toggle('hidden');
+        document.getElementById('register-view').classList.toggle('hidden');
+    }
+
+    function downloadCredentials() {
+        const element = document.getElementById('credentials-box');
+        html2canvas(element).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Tippspiel_Zugangsdaten.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+
+    async function loadKlassenDynamisch() {
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getKlassen' }) });
+            const result = await res.json();
+            if (result.success) {
+                const select = document.getElementById('reg-klasse');
+                select.innerHTML = ''; 
+                result.klassen.forEach(k => {
+                    let opt = document.createElement('option');
+                    opt.value = k; opt.innerText = k;
+                    select.appendChild(opt);
                 });
-            } catch (error) {
-                tbody.innerHTML = "<tr><td colspan='3'>Fehler beim Laden.</td></tr>";
             }
+        } catch (e) { console.log("Klassen-Ladefehler."); }
+    }
+
+    window.onload = loadKlassenDynamisch;
+
+    async function login() {
+        const n = document.getElementById('login-name').value.trim();
+        const p = getPinFromContainer('login-pin-container'); 
+        if (!n || p.length !== 4) return showMessage("Name/PIN unvollständig.");
+        document.getElementById('auth-loader').classList.remove('hidden');
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', name: n, password: p }) });
+            const result = await res.json();
+            if (result.success) {
+                currentUser = result.fullName || n; currentPassword = p;
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('version-display').classList.add('hidden'); 
+                document.getElementById('main-view').classList.remove('hidden');
+                showSection('start');
+            } else showMessage(result.error);
+        } catch (e) { showMessage("Fehler."); } 
+        finally { document.getElementById('auth-loader').classList.add('hidden'); }
+    }
+
+    async function register() {
+        const n = document.getElementById('reg-name').value.trim();
+        const p = getPinFromContainer('reg-pin-container'); 
+        const k = document.getElementById('reg-klasse').value;
+        if (!n || p.length !== 4 || !k) return showMessage("Eingaben unvollständig.");
+        document.getElementById('auth-loader').classList.remove('hidden');
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'register', name: n, password: p, klasse: k }) });
+            const result = await res.json();
+            if (result.success) {
+                currentUser = result.fullName || n; currentPassword = p;
+                document.getElementById('sum-name').innerText = currentUser; 
+                document.getElementById('sum-pin').innerText = p;
+                document.getElementById('register-view').classList.add('hidden');
+                document.getElementById('version-display').classList.add('hidden'); 
+                document.getElementById('summary-view').classList.remove('hidden');
+            } else showMessage(result.error);
+        } catch (err) { showMessage("Fehler."); } 
+        finally { document.getElementById('auth-loader').classList.add('hidden'); }
+    }
+
+    function proceedToMain() {
+        document.getElementById('summary-view').classList.add('hidden');
+        document.getElementById('main-view').classList.remove('hidden');
+        showSection('start');
+    }
+
+    function showSection(id) {
+        ['start', 'tipps', 'bonus', 'dashboard', 'profil', 'regeln'].forEach(s => {
+            document.getElementById(s + '-section').classList.add('hidden');
+            if (document.getElementById('nav-' + s)) document.getElementById('nav-' + s).classList.remove('active-btn');
+        });
+        
+        document.getElementById(id + '-section').classList.remove('hidden');
+        if (id !== 'start') document.getElementById('nav-' + id).classList.add('active-btn');
+
+        if (id === 'start') document.getElementById('start-header-section').classList.remove('hidden');
+        else document.getElementById('start-header-section').classList.add('hidden');
+
+        const bar = document.getElementById('floating-save-bar');
+        if (id === 'tipps') {
+            bar.classList.remove('hidden');
+            document.getElementById('btn-save-all').classList.remove('hidden');
+            document.getElementById('btn-save-bonus').classList.add('hidden');
+        } else if (id === 'bonus') {
+            bar.classList.remove('hidden');
+            document.getElementById('btn-save-all').classList.add('hidden');
+            document.getElementById('btn-save-bonus').classList.remove('hidden');
+        } else {
+            bar.classList.add('hidden');
         }
-    </script>
+        
+        loadData(id);
+    }
+
+    async function loadData(context) {
+        const loader = document.getElementById('loader-' + context);
+        if (loader) loader.classList.remove('hidden');
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getData', name: currentUser }) });
+            const result = await res.json();
+            if (result.success) {
+                if (context === 'start' && result.news && result.news.trim() !== "") {
+                    const news = document.getElementById('news-container');
+                    news.innerHTML = result.news; news.classList.remove('hidden');
+                }
+                
+                if (result.regeln && result.regeln.trim() !== "") document.getElementById('regeln-content').innerHTML = result.regeln;
+                if (result.userFeedback !== undefined) document.getElementById('feedback-text').value = result.userFeedback;
+                
+                globalRankingEinzel = result.ranking || [];
+                globalRankingKlasse = result.klassenRanking || [];
+                globalRankingStufe = result.stufenRanking || [];
+                
+                renderGames(result.spiele, result.userTipps);
+                switchRanking(currentRankingType); 
+                renderBonusFragen(result.bonusFragen, result.userBonusTipps || []);
+                renderProfil(result.myRankingHistory, result.myCurrentRank, result.myCurrentPoints, result.spiele, result.userTipps, result.userBonusTipps);
+            }
+        } catch (e) { console.log("Verbindungsproblem."); } 
+        finally { if (loader) loader.classList.add('hidden'); }
+    }
+
+    function switchRanking(type) {
+        currentRankingType = type;
+        ['einzel', 'klasse', 'stufe'].forEach(t => {
+            const btn = document.getElementById('filter-' + t);
+            if (btn) {
+                if (t === type) btn.classList.add('active-filter');
+                else btn.classList.remove('active-filter');
+            }
+        });
+
+        const thead = document.getElementById('ranking-head');
+        const tbody = document.getElementById('ranking-body');
+        tbody.innerHTML = '';
+
+        let myUser = globalRankingEinzel.find(u => u.name === currentUser);
+        let myKlasse = myUser ? myUser.klasse : "";
+        let myStufe = myUser ? myUser.stufe : "";
+
+        if (type === 'einzel') {
+            thead.innerHTML = '<tr><th>Platz</th><th>Name</th><th>Klasse</th><th>Form</th><th style="text-align:right;">Punkte</th></tr>';
+            globalRankingEinzel.sort((a, b) => b.punkte - a.punkte).forEach((u, i) => {
+                const tr = document.createElement('tr');
+                if (u.name === currentUser) tr.style.background = "rgba(251, 121, 198, 0.15)";
+                let f = `<div class="form-container">`;
+                if (u.letzteSpiele) u.letzteSpiele.forEach(p => f += `<div class="form-circle points-${p==3?'3':(p==1?'1':'0')}">${p}</div>`);
+                tr.innerHTML = `<td>${i+1}</td><td>${u.name}</td><td>${u.klasse||''}</td><td>${f}</div></td><td style="font-weight:bold; text-align:right;">${u.punkte}</td>`;
+                tbody.appendChild(tr);
+            });
+        } else if (type === 'klasse') {
+            thead.innerHTML = '<tr><th>Platz</th><th>Klasse</th><th>Teilnehmer</th><th style="text-align:right;">Ø Punkte</th></tr>';
+            globalRankingKlasse.forEach((k, i) => {
+                const tr = document.createElement('tr');
+                if (k.klasse === myKlasse && myKlasse !== "") tr.style.background = "rgba(251, 121, 198, 0.15)";
+                tr.innerHTML = `<td>${i+1}</td><td>${k.klasse}</td><td>${k.anzahl}</td><td style="font-weight:bold; text-align:right;">${k.durchschnitt}</td>`;
+                tbody.appendChild(tr);
+            });
+        } else if (type === 'stufe') {
+            thead.innerHTML = '<tr><th>Platz</th><th>Stufe</th><th>Teilnehmer</th><th style="text-align:right;">Ø Punkte</th></tr>';
+            globalRankingStufe.forEach((s, i) => {
+                const tr = document.createElement('tr');
+                if (s.stufe === myStufe && myStufe !== "Unbekannt" && myStufe !== "") tr.style.background = "rgba(251, 121, 198, 0.15)";
+                tr.innerHTML = `<td>${i+1}</td><td>${s.stufe}</td><td>${s.anzahl}</td><td style="font-weight:bold; text-align:right;">${s.durchschnitt}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    function renderProfil(history, rank, points, spiele, userTipps, bonusTipps) {
+        document.getElementById('profil-platz-display').innerText = rank;
+        document.getElementById('profil-punkte-display').innerText = points;
+
+        // Berechnung der Kennzahlen
+        let totalGamesInTournament = spiele.length;
+        let playedGames = userTipps.filter(t => t.tippH !== "" || t.tippA !== "").length;
+        
+        // 1. Anzahl getippter Spiele im Verhältnis zum Maximum
+        document.getElementById('profil-spiele-display').innerText = playedGames + "/" + totalGamesInTournament;
+
+        // 2. Durchschnittspunktzahl pro Spiel (basierend auf allen bisher abgeschlossenen Spielen)
+        let finishedGamesCount = spiele.filter(s => s.ergH !== "" && s.ergA !== "").length;
+        let avgPoints = finishedGamesCount > 0 ? (points / finishedGamesCount).toFixed(1) : "0.0";
+        document.getElementById('profil-schnitt-display').innerText = avgPoints;
+
+        let exakt = 0, tendenz = 0, falsch = 0;
+        let finishedGames = spiele.filter(s => s.ergH !== "" && s.ergA !== "");
+        
+        let pointHistoryData = [];
+        let pointHistoryLabels = [];
+
+        finishedGames.forEach((s, index) => {
+            let t = userTipps.find(ti => ti.spielId == s.id);
+            let earned = 0;
+            let visualValue = 0; 
+            
+            if (t && t.punkte !== "") {
+                earned = t.punkte;
+                if (earned === 3) { exakt++; visualValue = 2; }
+                else if (earned === 1) { tendenz++; visualValue = 1; }
+                else { falsch++; visualValue = 0; }
+            } else {
+                falsch++; 
+                visualValue = 0;
+            }
+            pointHistoryData.push(visualValue);
+            pointHistoryLabels.push('Spiel ' + (index + 1));
+        });
+
+        // --- GRAPH FÜR PUNKTEVERLAUF (ORANGE) ---
+        const ctxPointsHistory = document.getElementById('pointsHistoryChart').getContext('2d');
+        if (pointsHistoryChartInstance) pointsHistoryChartInstance.destroy();
+
+        let gradientPointsHistory = ctxPointsHistory.createLinearGradient(0, 0, 0, 180); 
+        gradientPointsHistory.addColorStop(0, 'rgba(242, 137, 7, 0.4)'); 
+        gradientPointsHistory.addColorStop(1, 'rgba(242, 137, 7, 0.0)');
+
+        pointsHistoryChartInstance = new Chart(ctxPointsHistory, {
+            type: 'line',
+            data: {
+                labels: pointHistoryLabels.length > 0 ? pointHistoryLabels : ['Start'],
+                datasets: [{
+                    label: 'Punkte',
+                    data: pointHistoryData.length > 0 ? pointHistoryData : [0],
+                    borderColor: '#F28907', 
+                    backgroundColor: gradientPointsHistory,
+                    borderWidth: 3, 
+                    tension: 0.4, 
+                    fill: 'start', 
+                    pointRadius: 4,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#F28907',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#F28907',
+                    pointHoverBorderColor: '#ffffff',
+                    clip: false
+                }]
+            },
+            options: {
+                responsive: true, 
+                maintainAspectRatio: false,
+                layout: { padding: { top: 15, bottom: 15, left: 5, right: 10 } }, 
+                interaction: { intersect: false, mode: 'index' },
+                scales: { 
+                    y: { 
+                        min: 0, 
+                        max: 2, 
+                        ticks: { 
+                            autoSkip: false, 
+                            stepSize: 1, 
+                            padding: 5,
+                            font: { weight: 'bold', size: 10 },
+                            color: function(context) {
+                                if (context.tick && context.tick.value === 2) return '#0468BF'; 
+                                if (context.tick && context.tick.value === 1) return '#F28907'; 
+                                if (context.tick && context.tick.value === 0) return '#F20F79'; 
+                                return 'transparent';
+                            },
+                            callback: function(value) {
+                                if (value === 0) return '0 Pkt';
+                                if (value === 1) return '1 Pkt';
+                                if (value === 2) return '3 Pkt';
+                                return null;
+                            }
+                        },
+                        border: { display: false },
+                        grid: { 
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawTicks: false,
+                            borderDash: [5, 5] 
+                        } 
+                    }, 
+                    x: { 
+                        display: true, 
+                        ticks: { display: false }, 
+                        border: { display: false },
+                        grid: { 
+                            display: true, 
+                            color: 'rgba(0, 0, 0, 0.05)', 
+                            drawTicks: false
+                        }
+                    } 
+                },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(242, 137, 7, 0.9)',
+                        titleColor: '#fff', bodyColor: '#fff', padding: 10, displayColors: false,
+                        callbacks: { 
+                            label: function(context) { 
+                                let realPoints = context.parsed.y === 2 ? 3 : context.parsed.y;
+                                return realPoints + ' Punkte'; 
+                            } 
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- MODERNES DONUT-DIAGRAMM: TIPP-BILANZ ---
+        if (pointsPieChartInstance) pointsPieChartInstance.destroy();
+        pointsPieChartInstance = new Chart(document.getElementById('pointsPieChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Exakt', 'Tendenz', 'Falsch'],
+                datasets: [{
+                    data: [exakt, tendenz, falsch],
+                    backgroundColor: ['#0468BF', '#F28907', '#F20F79'], 
+                    borderWidth: 0, 
+                    cutout: '65%', 
+                    borderRadius: 4, 
+                    spacing: 2 
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                layout: { padding: 0 },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { return ' ' + context.label + ': ' + context.parsed; }
+                        }
+                    }
+                } 
+            }
+        });
+
+        // --- LINIENDIAGRAMM: PLATZIERUNGSVERLAUF (MAGENTA) ---
+        const ctxRank = document.getElementById('rankingChart').getContext('2d');
+        if (rankingChartInstance) rankingChartInstance.destroy();
+
+        let gradient = ctxRank.createLinearGradient(0, 0, 0, 200); 
+        gradient.addColorStop(0, 'rgba(242, 15, 121, 0.4)'); 
+        gradient.addColorStop(1, 'rgba(242, 15, 121, 0.0)');
+
+        let totalPlayers = globalRankingEinzel.length > 0 ? globalRankingEinzel.length : 1;
+        
+        // Dynamische Berechnung der Schrittweite für die Beschriftung
+        let dynamicStep = 1;
+        if (totalPlayers >= 50) {
+            dynamicStep = 10;
+        } else if (totalPlayers >= 15) {
+            dynamicStep = 5;
+        }
+
+        rankingChartInstance = new Chart(ctxRank, {
+            type: 'line',
+            data: {
+                labels: history ? history.map((_, i) => 'Spiel ' + (i + 1)) : ['Start'],
+                datasets: [{
+                    label: 'Platzierung',
+                    data: history && history.length > 0 ? history : [1],
+                    borderColor: '#F20F79', 
+                    backgroundColor: gradient,
+                    borderWidth: 3, 
+                    tension: 0.4, 
+                    fill: 'start', 
+                    pointRadius: 4,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#F20F79',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#F20F79',
+                    pointHoverBorderColor: '#ffffff',
+                    clip: false
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                layout: { padding: { top: 20, bottom: 5, left: 10, right: 10 } }, // Links mehr Platz für Labels
+                interaction: { intersect: false, mode: 'index' },
+                scales: { 
+                    y: { 
+                        reverse: true, 
+                        min: 0.5, 
+                        max: totalPlayers + 2, 
+                        ticks: { 
+                            autoSkip: false, 
+                            stepSize: dynamicStep, // Hier greift deine 1er, 5er oder 10er Logik
+                            padding: 10, 
+                            color: '#555',
+                            font: { weight: 'bold', size: 10 },
+                            callback: function(value) {
+                                // Nur Beschriftung bei 1er oder Vielfachen von dynamicStep
+                                if (value === 1 || value % dynamicStep === 0) return value;
+                                return null;
+                            }
+                        },
+                        border: { display: false },
+                        grid: { 
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawTicks: false,
+                            borderDash: [5, 5],
+                            // WICHTIG: Das erzwingt Linien für jeden Platz (Schrittweite 1)
+                            stepSize: 1 
+                        } 
+                    },
+                    x: { 
+                        display: true, 
+                        ticks: { display: false }, 
+                        border: { display: false },
+                        grid: { 
+                            display: true, 
+                            color: 'rgba(0, 0, 0, 0.05)', 
+                            drawTicks: false
+                        }
+                    } 
+                },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(242, 15, 121, 0.9)',
+                        titleColor: '#fff', bodyColor: '#fff', padding: 10, displayColors: false,
+                        callbacks: { label: function(context) { return 'Platz: ' + context.parsed.y; } }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderGames(spiele, userTipps) {
+        const container = document.getElementById('games-container');
+        container.innerHTML = '';
+        spiele.forEach(s => {
+            if (s.heim === "TBA" || s.auswaerts === "TBA") return; 
+            const isL = s.status === 'gesperrt';
+            const t = userTipps.find(ti => ti.spielId == s.id) || {tippH:'', tippA:'', punkte:''};
+            let terminStr = "";
+            if (s.zeit) {
+                const d = new Date(s.zeit);
+                terminStr = d.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'}) + ' - ' + d.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ' Uhr';
+            }
+            const card = document.createElement('div');
+            card.className = 'game-card' + (isL ? ' locked-game' : (t.tippH !== '' ? ' tipped-game' : ''));
+            let hasFinalResult = (s.ergH !== "" && s.ergA !== "");
+            let badge = (isL && hasFinalResult && t.punkte !== '') ? `<div class="form-circle points-${t.punkte==3?'3':(t.punkte==1?'1':'0')}" style="position:absolute; top:8px; right:8px; width:28px; height:28px; font-size:14px;">${t.punkte}</div>` : "";
+            let res = hasFinalResult ? `<div style="background:rgba(4, 104, 191, 0.1); color:#0468BF; font-size:14px; padding:5px; border-radius:4px; margin-top:10px; text-align:center; font-weight:bold;">Endstand: ${s.ergH}:${s.ergA}</div>` : "";
+
+            card.innerHTML = `${badge}
+                <div style="font-size:13px; color:#666; text-align:center; margin-bottom:8px;"><strong>${s.phase}</strong> | ${terminStr} ${isL ? '🔒' : ''}</div>
+                <div class="matchup-row"><div class="team-name home">${s.heim}</div>
+                <div class="score-inputs"><input type="number" id="heim_${s.id}" value="${t.tippH}" ${isL?'disabled':''}><span>:</span>
+                <input type="number" id="auswaerts_${s.id}" value="${t.tippA}" ${isL?'disabled':''}></div>
+                <div class="team-name away">${s.auswaerts}</div></div>${res}`;
+            container.appendChild(card);
+        });
+    }
+
+    function renderBonusFragen(fragen, userTipps) {
+        const container = document.getElementById('bonus-container');
+        container.innerHTML = '';
+        fragen.forEach(f => {
+            const isL = f.status === 'gesperrt';
+            const t = userTipps.find(ti => ti.frageId == f.id) || {tipp:'', punkte:''};
+            let terminStr = "Keine Frist";
+            if (f.zeit) {
+                const d = new Date(f.zeit);
+                terminStr = d.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'}) + ' - ' + d.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ' Uhr';
+            }
+            const card = document.createElement('div');
+            card.className = 'game-card' + (isL ? ' locked-game' : (t.tipp !== '' ? ' tipped-game' : ''));
+            let badge = "";
+            if (isL && t.punkte !== '') {
+                badge = `<div class="form-circle" style="background-color: ${t.punkte > 0 ? '#0468BF' : '#F20F79'}; position:absolute; top:8px; right:8px; width:28px; height:28px; color:white; font-size:14px;">${t.punkte}</div>`;
+            }
+            let inputElementHtml = "";
+            if (f.auswahl && f.auswahl.trim() !== "") {
+                let options = f.auswahl.split(',').map(opt => opt.trim());
+                inputElementHtml = `<select id="bonus_${f.id}" class="bonus-input" style="text-align-last: center;" ${isL?'disabled':''}><option value="">Bitte wählen...</option>`;
+                options.forEach(opt => { inputElementHtml += `<option value="${opt}" ${t.tipp === opt ? "selected" : ""}>${opt}</option>`; });
+                inputElementHtml += `</select>`;
+            } else {
+                inputElementHtml = `<input type="text" id="bonus_${f.id}" class="bonus-input" value="${t.tipp}" ${isL?'disabled':''} placeholder="Antwort...">`;
+            }
+            card.innerHTML = `${badge}<div style="font-size:13px; color:#666; text-align:center; margin-bottom:8px;">${terminStr} ${isL ? '🔒' : ''}</div><div style="font-weight:bold; text-align:center; margin:10px 0;">${f.frage}</div>${inputElementHtml}`;
+            container.appendChild(card);
+        });
+    }
+
+    async function saveAllTipps() {
+        const btn = document.getElementById('btn-save-all');
+        btn.disabled = true; btn.innerText = "Speichere...";
+        let tipps = [];
+        document.querySelectorAll('input[id^="heim_"]').forEach(h => {
+            const id = h.id.split('_')[1];
+            const a = document.getElementById('auswaerts_' + id);
+            if (!h.disabled && h.value !== "" && a.value !== "") tipps.push({ spielId: id, tippH: h.value, tippA: a.value });
+        });
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAllTipps', name: currentUser, password: currentPassword, tipps: tipps }) });
+            const result = await res.json();
+            if (result.success) { showFloatingMessage("Gespeichert!", true); loadData('tipps'); } 
+            else { showFloatingMessage(result.error || "Fehler beim Speichern.", false); }
+        } catch (e) { showFloatingMessage("Fehler beim Speichern."); }
+        finally { btn.disabled = false; btn.innerText = "Tipps speichern"; }
+    }
+
+    async function saveBonusTipps() {
+        const btn = document.getElementById('btn-save-bonus');
+        btn.disabled = true; btn.innerText = "Speichere...";
+        let tipps = [];
+        document.querySelectorAll('.bonus-input').forEach(input => {
+            if (!input.disabled && input.value.trim() !== "") {
+                tipps.push({ frageId: input.id.split('_')[1], tipp: input.value.trim() });
+            }
+        });
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveBonusTipps', name: currentUser, password: currentPassword, bonusTipps: tipps }) });
+            const result = await res.json();
+            if (result.success) { showFloatingMessage("Bonus gespeichert!", true); loadData('bonus'); } 
+            else { showFloatingMessage(result.error || "Fehler beim Speichern.", false); }
+        } catch (e) { showFloatingMessage("Fehler beim Speichern."); }
+        finally { btn.disabled = false; btn.innerText = "Bonus speichern"; }
+    }
+    
+    function showFeedbackMessage(msg, isSuccess = false) {
+        const box = document.getElementById('feedback-message-box');
+        box.style.color = isSuccess ? '#0468BF' : '#F20F79'; box.innerText = msg;
+        setTimeout(() => box.innerText = '', 5000);
+    }
+
+    async function saveFeedback() {
+        const btn = document.getElementById('btn-save-feedback');
+        const text = document.getElementById('feedback-text').value.trim();
+        btn.disabled = true; btn.innerText = "Speichere...";
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'saveFeedback', name: currentUser, password: currentPassword, text: text }) });
+            const result = await res.json();
+            if (result.success) showFeedbackMessage(result.message, true); 
+            else showFeedbackMessage(result.error);
+        } catch (e) { showFeedbackMessage("Fehler beim Senden."); }
+        finally { btn.disabled = false; btn.innerText = "Feedback abschicken"; }
+    }
+</script>
 </body>
 </html>
