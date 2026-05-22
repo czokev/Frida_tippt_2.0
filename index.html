@@ -651,8 +651,8 @@
                         ticks: { 
                             autoSkip: false, 
                             stepSize: 1, 
-                            padding: 10,
-                            font: { weight: 'bold', size: 10 },
+                            padding: 15,
+                            font: { weight: 'normal', size: 12 },
                             color: function(context) {
                                 if (context.tick && context.tick.value === 2) return '#0468BF'; 
                                 if (context.tick && context.tick.value === 1) return '#F28907'; 
@@ -791,9 +791,9 @@
                         ticks: { 
                             autoSkip: false, 
                             stepSize: dynamicStep, // Hier greift deine 1er, 5er oder 10er Logik
-                            padding: 10, 
+                            padding: 15, 
                             color: '#555',
-                            font: { weight: 'bold', size: 10 },
+                            font: { weight: 'normal', size: 12 },
                             callback: function(value) {
                                 // Nur Beschriftung bei 1er oder Vielfachen von dynamicStep
                                 if (value === 1 || value % dynamicStep === 0) return value;
